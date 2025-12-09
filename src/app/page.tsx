@@ -1,9 +1,7 @@
-import { Button } from '@/components/ui/button'
+import React from 'react'
 
-export default function Home() {
-  return (
-    <div>
-      <Button variant="destructive">Click me</Button>
-    </div>
-  )
+const Home = async () => {
+  return <div>111</div>
 }
+
+export default Home
