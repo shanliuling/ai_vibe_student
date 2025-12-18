@@ -1,7 +1,17 @@
-import React from 'react'
+'use client'
 
-const Home = async () => {
-  return <div>111</div>
+import { useTRPC } from '@/trpc/client'
+import { useQuery } from '@tanstack/react-query'
+
+const Page = () => {
+  const trpc = useTRPC()
+  const { data } = useQuery(
+    trpc.createAI.queryOptions({
+      text: 'hellow阿斯顿撒',
+    })
+  )
+
+  return <div>{JSON.stringify(data)}</div>
 }
 
-export default Home
+export default Page
