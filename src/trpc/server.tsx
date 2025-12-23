@@ -12,3 +12,5 @@ export const trpc = createTRPCOptionsProxy({
   router: appRouter,
   queryClient: getQueryClient,
 })
+// 创建一个 caller，用于在服务器端调用 tRPC 查询
+export const caller = appRouter.createCaller(createTRPCContext)
