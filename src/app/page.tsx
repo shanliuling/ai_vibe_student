@@ -27,7 +27,7 @@ const Page = () => {
       <Button
         disabled={invoke.isPending}
         onClick={() => {
-          invoke.mutate({ text: 'zzjjll' })
+          invoke.mutate({ value: value }) //触发后台任务事件
         }}>
         点击
       </Button>
