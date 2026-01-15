@@ -1,12 +1,26 @@
 import { inngest } from './client'
+import { Agent, openai, createAgent } from '@inngest/agent-kit'
 
 export const helloWorld = inngest.createFunction(
   { id: 'hello-world2' }, // 任务的唯一ID
   { event: 'test/hello.world2' }, // 监听的指令名称
   async ({ event, step }) => {
-    await step.sleep('wait-a-moment', '30s')
-    await step.sleep('wait-a-moment', '10s') // 等待10秒
-    await step.sleep('wait-a-moment', '5s')
-    return { message: `Hello ${event.data.email}!` } // 返回数据
+    //  创建一个Agent
+    //  https://agentkit.inngest.com/concepts/agents
+    const codeAgent = createAgent({
+      name: 'codeAgent',
+      system:
+        '你是一位拥有 5 年以上经验的 Next.js 专家，精通 React、TypeScript、Tailwind CSS 以及 App Router / Pages Router 的混合开发。你对 Next.js 的数据流（Server Components, Client Components, Server Actions）有深刻理解。',
+      model: openai({
+        model: 'deepseek-chat',
+        baseUrl: 'https://api.deepseek.com',
+        apiKey: process.env.OPENAI_API_KEY,
+      }),
+    })
+    const { output } = await codeAgent.run(
+      `请协助回答或处理以下关于 Next.js 的问题：${event.data.value}`
+    )
+
+    return { output } // 返回数据
   }
 )
