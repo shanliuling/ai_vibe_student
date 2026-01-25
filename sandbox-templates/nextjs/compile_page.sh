@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 这个脚本在构建沙箱模板时运行
-# 它的作用是确保 Next.js 应用 (1) 正在运行 并且 (2) `/` 首页已经被编译好了 (预热)
+# ping_server polls http://localhost:3000 until the server responds with HTTP 200, printing a periodic "等待服务器启动..." message while retrying.
 function ping_server() {
 	counter=0
 	response=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000")
