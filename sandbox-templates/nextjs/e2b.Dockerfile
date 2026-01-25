@@ -7,7 +7,7 @@ FROM node:21-slim
 RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY compile_page.sh /compile_page.sh
-RUN chmod +x /compile_page.sh
+RUN sed -i 's/\r$//' /compile_page.sh && chmod +x /compile_page.sh
 
 # 安装依赖并自定义沙箱
 WORKDIR /home/user/nextjs-app
