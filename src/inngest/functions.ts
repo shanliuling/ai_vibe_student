@@ -1,7 +1,8 @@
 import { inngest } from './client'
-import { Agent, openai, createAgent } from '@inngest/agent-kit'
+import { Agent, openai, createAgent, createTool } from '@inngest/agent-kit'
 import { Sandbox } from '@e2b/code-interpreter'
 import { getSandbox } from './utils'
+import z from 'zod'
 export const helloWorld = inngest.createFunction(
   { id: 'hello-world2' }, // 任务的唯一ID
   { event: 'test/hello.world2' }, // 监听的指令名称
@@ -21,6 +22,39 @@ export const helloWorld = inngest.createFunction(
         baseUrl: 'https://api.deepseek.com',
         apiKey: process.env.OPENAI_API_KEY,
       }),
+      tools: [
+        createTool({
+          name: 'terminal',
+          description: '使用终端执行命令', // 工具的描述
+          // 参数对象
+          parameters: z.object({
+            command: z.string(), // 命令
+          }),
+          // 执行命令
+          handler: async ({ command }, { step }) => {
+            return await step?.run('terminal', async () => {
+              const buffers = { stdout: '', stderr: '' }
+              try {
+                const sandbox = await getSandbox(sandboxId)
+                const result = await sandbox.commands.run(command, {
+                  onStdout: (chunk) => {
+                    buffers.stdout += chunk
+                  },
+                  onStderr: (chunk) => {
+                    buffers.stderr += chunk
+                  },
+                })
+                return result.stdout
+              } catch (error) {
+                console.error(
+                  `错误: ${error},buffers: ${buffers.stderr} and ${buffers.stdout}`,
+                )
+                return `错误: ${error},buffers: ${buffers.stderr} and ${buffers.stdout}`
+              }
+            })
+          },
+        }),
+      ],
     })
     const { output } = await codeAgent.run(
       `请协助回答或处理以下关于 Next.js 的问题：${event.data.value}`,
