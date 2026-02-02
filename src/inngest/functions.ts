@@ -3,6 +3,7 @@ import { Agent, openai, createAgent, createTool } from '@inngest/agent-kit'
 import { Sandbox } from '@e2b/code-interpreter'
 import { getSandbox } from './utils'
 import z from 'zod'
+import { PROMPT } from '@/prompt'
 
 // handler 执行函数
 
@@ -18,12 +19,15 @@ export const helloWorld = inngest.createFunction(
 
     const codeAgent = createAgent({
       name: 'codeAgent',
-      system:
-        '你是一位拥有 5 年以上经验的 Next.js 专家，精通 React、TypeScript、Tailwind CSS 以及 App Router / Pages Router 的混合开发。你对 Next.js 的数据流（Server Components, Client Components, Server Actions）有深刻理解。',
+      description: '金林专用AI 编程助手',
+      system: PROMPT,
       model: openai({
         model: 'deepseek-chat',
         baseUrl: 'https://api.deepseek.com',
         apiKey: process.env.OPENAI_API_KEY,
+        defaultParameters: {
+          temperature: 0.1, // 降低随机性，让 AI 更专注
+        },
       }),
       tools: [
         createTool({
@@ -134,6 +138,8 @@ export const helloWorld = inngest.createFunction(
           },
         }),
       ],
+      // 生命周期
+      lifecycle: {},
     })
     const { output } = await codeAgent.run(
       `请协助回答或处理以下关于 Next.js 的问题：${event.data.value}`,
