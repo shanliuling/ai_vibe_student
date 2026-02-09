@@ -1,7 +1,13 @@
 import { inngest } from './client'
-import { Agent, openai, createAgent, createTool } from '@inngest/agent-kit'
+import {
+  Agent,
+  openai,
+  createAgent,
+  createTool,
+  createNetwork,
+} from '@inngest/agent-kit'
 import { Sandbox } from '@e2b/code-interpreter'
-import { getSandbox } from './utils'
+import { getSandbox, lastAssistantMessageContent } from './utils'
 import z from 'zod'
 import { PROMPT } from '@/prompt'
 
@@ -139,8 +145,27 @@ export const helloWorld = inngest.createFunction(
         }),
       ],
       // 生命周期
-      lifecycle: {},
+      lifecycle: {
+        // 每当 AI 回答完，都会触发这个函数
+        onResponse: async ({ result, network }) => {
+          const lastAssistantMessageText = lastAssistantMessageContent(result)
+          if (lastAssistantMessageText && network) {
+            if (lastAssistantMessageText.includes('<task_summary>')) {
+              // 如果包含，就将 AI 的回答存入 network.state.data.summary
+              network.state.data.summary = lastAssistantMessageText
+            }
+          }
+          return result
+        },
+      },
     })
+
+    const network = createNetwork({
+      name: 'coding-agent-network',
+      agents: [codeAgent],
+      maxIter: 15, // 最多迭代15次
+    })
+
     const { output } = await codeAgent.run(
       `请协助回答或处理以下关于 Next.js 的问题：${event.data.value}`,
     )
