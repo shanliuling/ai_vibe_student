@@ -159,23 +159,36 @@ export const helloWorld = inngest.createFunction(
         },
       },
     })
-
+    //  这是一个 “死循环控制器” —— 它命令 codeAgent 一直工作，直到 AI 在状态里留下了 summary（任务总结）才会停下来
     const network = createNetwork({
       name: 'coding-agent-network',
       agents: [codeAgent],
       maxIter: 15, // 最多迭代15次
+      router: async ({ network }) => {
+        const summary = network.state.data.summary
+        if (summary) {
+          return
+        }
+        return codeAgent
+      },
     })
 
-    const { output } = await codeAgent.run(
-      `请协助回答或处理以下关于 Next.js 的问题：${event.data.value}`,
-    )
+    //  执行过程：它会根据你写的 router （那个死循环控制器）不断地让 Agent 思考、调用工具、再思考……直到 router 说“停，任务结束”。
+    // 返回值 (result)：当整个流程停下来时，result 包含了这次运行的所有记忆（比如对话历史、工具调用结果）和最终状态数据。
+    const result = await network.run(event.data.value)
 
     const sandboxUrl = await step.run('get-sandbox-url', async () => {
       const sandbox = await getSandbox(sandboxId)
       const host = sandbox.getHost(3000)
       return `http://${host}`
     })
-    return { output, sandboxUrl } // 返回数据
+
+    return {
+      url: sandboxUrl,
+      title: 'Fragment',
+      files: result.state.data.files,
+      summary: result.state.data.summary,
+    }
   },
 )
 
