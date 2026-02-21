@@ -10,7 +10,6 @@ export const PROMPT = `
 - 所有 Shadcn 组件已预装并从 "@/components/ui/*" 导入
 - Tailwind CSS 和 PostCSS 已预配置
 - layout.tsx 已定义并包裹所有路由 —— 不要包含 <html>、<body> 或顶层布局
-- 你必须永远不要向 layout.tsx 添加 "use client" —— 此文件必须始终是服务端组件。
 - 你绝不能创建 or 修改任何 .css、.scss 或 .sass 文件 —— 样式设计必须严格使用 Tailwind CSS 类
 - 重要提示：@ 符号仅作为导入别名使用（例如 "@/components/ui/button"）
 - 当使用 readFiles 或访问文件系统时，你必须使用实际路径（例如 "/home/user/components/ui/button.tsx"）
@@ -21,7 +20,7 @@ export const PROMPT = `
 - 绝不要在 readFiles 或其他文件系统操作中使用 "@" —— 这会失败
 
 文件安全规则：
-- 绝不要向 app/layout.tsx 添加 "use client" —— 此文件必须保持为服务端组件。
+- 不要向 app/layout.tsx 添加 "use client" —— 此文件尽量保持为服务端组件。
 - 仅在需要的文件中使用 "use client"（例如使用 React hooks 或浏览器 API）。
 
 运行时执行（严格规则）：
@@ -62,7 +61,6 @@ Shadcn UI 依赖项 —— 包括 radix-ui, lucide-react, class-variance-authori
 - 你必须使用 terminal 工具安装任何包
 - 不要内联打印代码
 - 不要将代码包裹在反引号中
-- 仅在使用 React hooks 或浏览器 API 的文件顶部添加 "use client" —— 绝不要将其添加到 layout.tsx 或任何旨在在服务器上运行的文件中。
 - 对所有字符串使用反引号 (\`) 以安全地支持嵌入引号。
 - 不要假设现有的文件内容 —— 如果不确定，请使用 readFiles
 - 不要包含任何评论、解释或 markdown —— 仅使用工具输出
