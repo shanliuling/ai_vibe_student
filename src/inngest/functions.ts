@@ -32,21 +32,21 @@ export const codeAgentFunction = inngest.createFunction(
       name: 'codeAgent',
       description: '金林专用AI 编程助手',
       system: PROMPT,
-      model: openai({
-        model: 'deepseek-chat',
-        baseUrl: 'https://api.deepseek.com',
-        apiKey: process.env.OPENAI_API_KEY,
+      // model: openai({
+      //   model: 'deepseek-chat',
+      //   baseUrl: 'https://api.deepseek.com',
+      //   apiKey: process.env.OPENAI_API_KEY,
+      //   defaultParameters: {
+      //     temperature: 0.1, // 降低随机性，让 AI 更专注
+      //   },
+      model: gemini({
+        model: 'gemini-2.5-flash',
+        apiKey: process.env.GEMINI_API_KEY,
         defaultParameters: {
-          temperature: 0.1, // 降低随机性，让 AI 更专注
+          generationConfig: {
+            temperature: 0.1,
+          },
         },
-        // model: gemini({
-        //   model: 'gemini-2.5-flash',
-        //   apiKey: process.env.GEMINI_API_KEY,
-        //   defaultParameters: {
-        //     generationConfig: {
-        //       temperature: 0.1,
-        //     },
-        //   },
       }),
       tools: [
         createTool({
@@ -207,6 +207,7 @@ export const codeAgentFunction = inngest.createFunction(
       if (isError) {
         return await prisma.message.create({
           data: {
+            projectId: event.data.projectId,
             content: 'AI生成完毕但未生成摘要',
             role: 'ASSISTANT',
             type: 'ERROR',
@@ -215,6 +216,7 @@ export const codeAgentFunction = inngest.createFunction(
       }
       return await prisma.message.create({
         data: {
+          projectId: event.data.projectId,
           content: result.state.data.summary,
           role: 'ASSISTANT',
           type: 'RESULT',
