@@ -1,32 +1,8 @@
-import { z } from 'zod'
-import { baseProcedure, createTRPCRouter } from '../init'
-import { inngest } from '@/inngest/client'
+import { createTRPCRouter } from '../init'
+
+import { messagesRouter } from '@/modules/server/procedures'
 export const appRouter = createTRPCRouter({
-  invoke: baseProcedure
-    .input(
-      z.object({
-        value: z.string(),
-      })
-    )
-    .mutation(async (opts) => {
-      //  触发后台任务事件
-      await inngest.send({
-        name: 'test/hello.world2',
-        data: { value: opts.input.value },
-      })
-      return { ok: ' success' }
-    }),
-  createAI: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      }
-    }),
+  messages: messagesRouter,
 })
 // 导出 API 的类型定义
 export type AppRouter = typeof appRouter

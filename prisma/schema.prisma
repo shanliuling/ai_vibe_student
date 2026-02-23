@@ -13,18 +13,32 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+enum MessageRole{
+  USER
+  ASSISTANT
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  
-  content   String?
-  published Boolean @default(false)
-  authorId  Int
-  author    User    @relation(fields: [authorId], references: [id])
+enum MessageType{
+  RESULT
+  ERROR
+}
+model Message {
+  id    String @id @default(uuid())
+  content  String
+  role    MessageRole
+  type    MessageType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  fragment Fragment?  
+}
+
+model Fragment {
+  id    String @id @default(uuid())
+  messageId  String @unique // @unique: 作用是确保一个 message 只有一个 fragment
+  message Message @relation(fields: [messageId], references: [id],onDelete: Cascade) // Cascade: 当 message 被删除时，fragment 也会被删除
+  sandboxUrl String
+  title String
+  files Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

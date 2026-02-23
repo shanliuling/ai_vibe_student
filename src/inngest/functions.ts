@@ -1,21 +1,26 @@
 import { inngest } from './client'
 import {
   Agent,
-  openai,
+  gemini,
   createAgent,
   createTool,
   createNetwork,
+  openai,
+  Tool,
 } from '@inngest/agent-kit'
 import { Sandbox } from '@e2b/code-interpreter'
 import { getSandbox, lastAssistantMessageContent } from './utils'
 import z from 'zod'
 import { PROMPT } from '@/prompt'
+import prisma from '@/lib/db'
+interface AgentState {
+  summary: string
+  files: { [path: string]: string }
+}
 
-// handler 执行函数
-
-export const helloWorld = inngest.createFunction(
-  { id: 'hello-world2' }, // 任务的唯一ID
-  { event: 'test/hello.world2' }, // 监听的指令名称
+export const codeAgentFunction = inngest.createFunction(
+  { id: 'code-agent' }, // 任务的唯一ID
+  { event: 'code-agent/run' }, // 监听的指令名称
   async ({ event, step }) => {
     const sandboxId = await step.run('get-sandbox-id', async () => {
       const sandbox = await Sandbox.create('vibe-nextjs-student')
@@ -23,7 +28,7 @@ export const helloWorld = inngest.createFunction(
       return sandbox.sandboxId
     })
 
-    const codeAgent = createAgent({
+    const codeAgent = createAgent<AgentState>({
       name: 'codeAgent',
       description: '金林专用AI 编程助手',
       system: PROMPT,
@@ -34,6 +39,14 @@ export const helloWorld = inngest.createFunction(
         defaultParameters: {
           temperature: 0.1, // 降低随机性，让 AI 更专注
         },
+        // model: gemini({
+        //   model: 'gemini-2.5-flash',
+        //   apiKey: process.env.GEMINI_API_KEY,
+        //   defaultParameters: {
+        //     generationConfig: {
+        //       temperature: 0.1,
+        //     },
+        //   },
       }),
       tools: [
         createTool({
@@ -91,7 +104,10 @@ export const helloWorld = inngest.createFunction(
           // 1. files: AI 传进来的，想写什么文件、写在哪。
           // 2. step: Inngest 的控制器，用来开启一个“稳健的步骤”。
           // 3. network: 整个 AI 网络的管家，管着所有记忆。
-          handler: async ({ files }, { step, network }) => {
+          handler: async (
+            { files },
+            { step, network }: Tool.Options<AgentState>,
+          ) => {
             const newFiles = await step?.run(
               'createOrUpdateFiles',
               async () => {
@@ -109,7 +125,7 @@ export const helloWorld = inngest.createFunction(
               },
             )
 
-            if (typeof newFiles === 'object') {
+            if (newFiles && typeof newFiles === 'object') {
               // [手动同步] 将刚才 updateFiles 步骤产生的新文件列表，强制赋值给当前 Agent 的内存状态
               // 刚才那个 step.run 虽然跑完了，但外面的 network.state.data.files 根本没变。
               // 因为刚才是在盒子里改的副本。
@@ -124,7 +140,7 @@ export const helloWorld = inngest.createFunction(
           parameters: z.object({
             files: z.array(z.string()),
           }),
-          handler: async ({ files }, { step }) => {
+          handler: async ({ files }, { step }: Tool.Options<AgentState>) => {
             return await step?.run('readFile', async () => {
               try {
                 const sandbox = await getSandbox(sandboxId)
@@ -160,7 +176,7 @@ export const helloWorld = inngest.createFunction(
       },
     })
     //  这是一个 “死循环控制器” —— 它命令 codeAgent 一直工作，直到 AI 在状态里留下了 summary（任务总结）才会停下来
-    const network = createNetwork({
+    const network = createNetwork<AgentState>({
       name: 'coding-agent-network',
       agents: [codeAgent],
       maxIter: 15, // 最多迭代15次
@@ -177,10 +193,40 @@ export const helloWorld = inngest.createFunction(
     // 返回值 (result)：当整个流程停下来时，result 包含了这次运行的所有记忆（比如对话历史、工具调用结果）和最终状态数据。
     const result = await network.run(event.data.value)
 
+    const isError =
+      !result.state.data.summary ||
+      Object.keys(result.state.data.files || {}).length === 0
+
     const sandboxUrl = await step.run('get-sandbox-url', async () => {
       const sandbox = await getSandbox(sandboxId)
       const host = sandbox.getHost(3000)
       return `http://${host}`
+    })
+
+    await step.run('save-result', async () => {
+      if (isError) {
+        return await prisma.message.create({
+          data: {
+            content: 'AI生成完毕但未生成摘要',
+            role: 'ASSISTANT',
+            type: 'ERROR',
+          },
+        })
+      }
+      return await prisma.message.create({
+        data: {
+          content: result.state.data.summary,
+          role: 'ASSISTANT',
+          type: 'RESULT',
+          fragment: {
+            create: {
+              sandboxUrl: sandboxUrl,
+              title: 'Fragment',
+              files: result.state.data.files,
+            },
+          },
+        },
+      })
     })
 
     return {
