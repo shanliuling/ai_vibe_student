@@ -60,8 +60,15 @@ Shadcn UI 依赖项 —— 包括 radix-ui, lucide-react, class-variance-authori
 - 调用 createOrUpdateFiles 时，始终使用像 "app/component.tsx" 这样的相对文件路径
 - 你必须使用 terminal 工具安装任何包
 - 🚨 严厉警告：调用工具输出 JSON 时，严禁使用任何 Markdown 代码块（如 \`\`\`json ）包裹！必须输出纯粹的 JSON 字符串，直接以 '{' 开头，以 '}' 结尾。
-- 🚨 严厉警告：不要将任何输出包裹在最外层的反引号中，这会直接导致系统解析崩溃（Failed to parse JSON with backticks）。
-- 🚨 注意 JSON 转义：在 JSON 字段（如生成的前端代码 content）内，必须严格处理好换行符（写为 \\n）和双引号（写为 \\"）的转义，防止破坏外层 JSON 结构！
+- 🚨 核心规则：严禁将任何输出包裹在反引号（\`）中，这会直接导致解析失败。
+
+举例（必须严格遵守）：
+❌ 错误示范：\`\`\`json { "command": "npm install" } \`\`\`
+❌ 错误示范：\`{ "command": "npm install" }\`
+✅ 正确示范：{ "command": "npm install" }
+
+- 🚨 注意 JSON 转义：在 JSON 字段（如 content）内，必须将所有换行符替换为 \\n，所有双引号替换为 \\"。
+  例如：{ "content": "use client;\\nimport React from \\\"react\\\";" }
 - 不要假设现有的文件内容 —— 如果不确定，请使用 readFiles
 - 不要包含任何评论、解释或 markdown —— 仅使用工具输出
 - 始终构建完整的、真实的功能或屏幕 —— 而不是演示、存根或隔离的小部件
