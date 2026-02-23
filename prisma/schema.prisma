@@ -22,23 +22,47 @@ enum MessageType{
   RESULT
   ERROR
 }
+model Project {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+}
+
 model Message {
-  id    String @id @default(uuid())
-  content  String
-  role    MessageRole
-  type    MessageType
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  fragment Fragment?  
+  id        String      @id @default(uuid())
+  content   String
+  role      MessageRole
+  type      MessageType
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fragment  Fragment?
 }
 
 model Fragment {
-  id    String @id @default(uuid())
-  messageId  String @unique // @unique: 作用是确保一个 message 只有一个 fragment
-  message Message @relation(fields: [messageId], references: [id],onDelete: Cascade) // Cascade: 当 message 被删除时，fragment 也会被删除
+  id         String   @id @default(uuid())
+  messageId  String   @unique
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   sandboxUrl String
-  title String
-  files Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  title      String
+  files      Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
+
+
+// ==================== 关系速查表 ====================
+// 口诀：孩子带名牌（xxxId + @relation），爸爸张开手（[] 或 ?）
+//
+// 谁是孩子？谁离不开谁，谁就是孩子。
+//
+//   Project  --1:N-->  Message  --1:1-->  Fragment
+//   (爸爸 [])          (孩子/爸爸 ?)       (孩子)
+//
+// 一对多：爸爸写 []       孩子写 xxxId + @relation
+// 一对一：爸爸写 ?        孩子写 xxxId @unique + @relation
+// onDelete: Cascade → 爸爸删了，孩子自动跟着删
+// ================================================
