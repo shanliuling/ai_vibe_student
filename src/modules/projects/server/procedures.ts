@@ -3,17 +3,31 @@ import prisma from '@/lib/db'
 import { baseProcedure, createTRPCRouter } from '@/trpc/init'
 import { z } from 'zod'
 import { generateSlug } from 'random-word-slugs'
+import { TRPCError } from '@trpc/server'
 // tRPC Router 实例：负责定义与消息业务相关的后端 API 接口
 export const projectsRouter = createTRPCRouter({
-  // 获取所有消息
+  getOne: baseProcedure
+    .input(
+      z.object({
+        id: z.string().min(1, { message: '项目ID不能为空' }),
+      }),
+    )
+    .query(async ({ input }) => {
+      const existingProject = await prisma.project.findUnique({
+        where: {
+          id: input.id,
+        },
+      })
+      if (!existingProject) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: '项目不存在' })
+      }
+      return existingProject
+    }),
   getMany: baseProcedure.query(async () => {
     const projects = await prisma.message.findMany({
       orderBy: {
         updatedAt: 'desc',
       },
-      // include: {
-      //   fragment: true,
-      // },
     })
     return projects
   }),
