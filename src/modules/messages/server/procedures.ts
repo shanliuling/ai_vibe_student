@@ -17,8 +17,11 @@ export const messagesRouter = createTRPCRouter({
         where: {
           projectId: input.projectId, // 过滤：只找这个项目的消息
         },
+        include: {
+          fragment: true,
+        },
         orderBy: {
-          updatedAt: 'desc',
+          updatedAt: 'asc',
         },
       })
     }),
