@@ -1,6 +1,8 @@
+import { Fragment } from '@/generated/prisma/client'
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { MessageCard } from './message-card'
+
 interface Props {
   projectId: string
 }
@@ -26,7 +28,7 @@ export const MessageContainer = ({ projectId }: Props) => {
                 fragment={message.fragment}
                 createdAt={message.createdAt}
                 isActiveFragment={false}
-                onFragmentClick={() => {}}
+                onFragmentClick={(fragment: Fragment) => {}}
                 type={message.type}
               />
             )
