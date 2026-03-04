@@ -32,21 +32,21 @@ export const codeAgentFunction = inngest.createFunction(
       name: 'codeAgent',
       description: '金林专用AI 编程助手',
       system: PROMPT,
-      // model: openai({
-      //   model: 'deepseek-chat',
-      //   baseUrl: 'https://api.deepseek.com',
-      //   apiKey: process.env.OPENAI_API_KEY,
-      //   defaultParameters: {
-      //     temperature: 0.1, // 降低随机性，让 AI 更专注
-      //   },
-      model: gemini({
-        model: 'gemini-2.5-flash',
-        apiKey: process.env.GEMINI_API_KEY,
+      model: openai({
+        model: 'deepseek-ai/DeepSeek-V3.2', // 替换为硅基流动上性能强劲的 DeepSeek-V3 模型
+        baseUrl: 'https://api.siliconflow.cn/v1', // 硅基流动统一 API 接口
+        apiKey: process.env.OPENAI_API_KEY,
         defaultParameters: {
-          generationConfig: {
-            temperature: 0.1,
-          },
+          temperature: 0.1, // 降低随机性，让 AI 更专注
         },
+        // model: gemini({
+        //   model: 'gemini-2.5-flash',
+        //   apiKey: process.env.GEMINI_API_KEY,
+        //   defaultParameters: {
+        //     generationConfig: {
+        //       temperature: 0.1,
+        //     },
+        //   },
       }),
       tools: [
         createTool({

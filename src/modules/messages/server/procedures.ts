@@ -6,16 +6,25 @@ import { z } from 'zod'
 // tRPC Router 实例：负责定义与消息业务相关的后端 API 接口
 export const messagesRouter = createTRPCRouter({
   // 获取所有消息
-  getMany: baseProcedure.query(async () => {
-    return await prisma.message.findMany({
-      orderBy: {
-        updatedAt: 'desc',
-      },
-      // include: {
-      //   fragment: true,
-      // },
-    })
-  }),
+  getMany: baseProcedure
+    .input(
+      z.object({
+        projectId: z.string().min(1, { message: '项目ID不能为空' }),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await prisma.message.findMany({
+        where: {
+          projectId: input.projectId, // 过滤：只找这个项目的消息
+        },
+        include: {
+          fragment: true,
+        },
+        orderBy: {
+          updatedAt: 'asc',
+        },
+      })
+    }),
   // 处理客户端端创建新消息的请求
   create: baseProcedure
     // 输入校验：使用 Zod 定义 Schema，确保入参 value 为非空字符串
