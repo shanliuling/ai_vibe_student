@@ -7,9 +7,15 @@ import { MessageForm } from './message-form'
 
 interface Props {
   projectId: string
+  activeFragment: Fragment | null
+  setActiveFragment: (fragment: Fragment | null) => void
 }
 
-export const MessageContainer = ({ projectId }: Props) => {
+export const MessageContainer = ({
+  projectId,
+  activeFragment,
+  setActiveFragment,
+}: Props) => {
   const trpc = useTRPC()
   const bottomRef = useRef<HTMLDivElement>(null)
   // useSuspenseQuery 预加载数据
@@ -22,9 +28,11 @@ export const MessageContainer = ({ projectId }: Props) => {
     const lastAssistenMessage = messages.findLast(
       (message) => message.role === 'ASSISTANT',
     )
+
     if (lastAssistenMessage) {
+      setActiveFragment(lastAssistenMessage.fragment)
     }
-  }, [messages])
+  }, [messages, setActiveFragment])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView()
@@ -41,8 +49,10 @@ export const MessageContainer = ({ projectId }: Props) => {
                 role={message.role}
                 fragment={message.fragment}
                 createdAt={message.createdAt}
-                isActiveFragment={false}
-                onFragmentClick={(fragment: Fragment) => {}}
+                isActiveFragment={activeFragment?.id === message.fragment?.id}
+                onFragmentClick={() => {
+                  setActiveFragment(message.fragment)
+                }}
                 type={message.type}
               />
             )

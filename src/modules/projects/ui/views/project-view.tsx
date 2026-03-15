@@ -5,15 +5,15 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import { useTRPC } from '@/trpc/client'
-import { Suspense } from 'react'
+import { Fragment } from '@/generated/prisma'
+import { Suspense, useState } from 'react'
 import { MessageContainer } from '../components/message-container'
 interface Props {
   projectId: string
 }
 
 const ProjectView = ({ projectId }: Props) => {
-  const trpc = useTRPC()
+  const [activeFragment, setActiveFragment] = useState<Fragment | null>(null)
 
   return (
     <div className="h-screen">
@@ -23,7 +23,11 @@ const ProjectView = ({ projectId }: Props) => {
           minSize={20}
           className="flex flex-col min-h-0">
           <Suspense fallback={<p>loading message....</p>}>
-            <MessageContainer projectId={projectId} />
+            <MessageContainer
+              projectId={projectId}
+              activeFragment={activeFragment}
+              setActiveFragment={setActiveFragment}
+            />
           </Suspense>
         </ResizablePanel>
         <ResizableHandle withHandle />
