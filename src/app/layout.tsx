@@ -1,8 +1,9 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
 import { TRPCReactProvider } from '@/trpc/client'
+import type { Metadata } from 'next'
+import { ThemeProvider } from 'next-themes'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
+import './globals.css'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,11 +27,19 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-      <html lang="en">
+      {/* suppressHydrationWarning: 是 React 的一个属性，用于抑制水合警告。
+      作用：在 Next.js 中，服务器端渲染（SSR）会将页面生成 HTML 发送给浏览器。然后浏览器会"水合"（hydrate）这些 HTML，添加 JavaScript 交互。如果服务器生成的 HTML 和浏览器生成的 DOM 不一致，React 会发出警告。*/}
+      <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Toaster></Toaster>
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange>
+            <Toaster></Toaster>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </TRPCReactProvider>
