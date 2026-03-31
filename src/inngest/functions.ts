@@ -1,18 +1,16 @@
-import { inngest } from './client'
+import prisma from '@/lib/db'
+import { PROMPT } from '@/prompt'
+import { Sandbox } from '@e2b/code-interpreter'
 import {
-  Agent,
-  gemini,
   createAgent,
-  createTool,
   createNetwork,
+  createTool,
   openai,
   Tool,
 } from '@inngest/agent-kit'
-import { Sandbox } from '@e2b/code-interpreter'
-import { getSandbox, lastAssistantMessageContent } from './utils'
 import z from 'zod'
-import { PROMPT } from '@/prompt'
-import prisma from '@/lib/db'
+import { inngest } from './client'
+import { getSandbox, lastAssistantMessageContent } from './utils'
 interface AgentState {
   summary: string
   files: { [path: string]: string }
@@ -33,8 +31,8 @@ export const codeAgentFunction = inngest.createFunction(
       description: '金林专用AI 编程助手',
       system: PROMPT,
       model: openai({
-        model: 'deepseek-ai/DeepSeek-V3.2', // 替换为硅基流动上性能强劲的 DeepSeek-V3 模型
-        baseUrl: 'https://api.siliconflow.cn/v1', // 硅基流动统一 API 接口
+        model: 'minimax2.5',
+        baseUrl: 'http://100.64.0.59:8902/v1',
         apiKey: process.env.OPENAI_API_KEY,
         defaultParameters: {
           temperature: 0.1, // 降低随机性，让 AI 更专注

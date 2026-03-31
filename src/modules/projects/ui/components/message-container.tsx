@@ -1,9 +1,10 @@
-import { Fragment } from '@/generated/prisma/client'
+import { Fragment } from '@/generated/prisma'
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { MessageCard } from './message-card'
 import { MessageForm } from './message-form'
+import { MessageLoading } from './message-loading'
 
 interface Props {
   projectId: string
@@ -45,7 +46,7 @@ export const MessageContainer = ({
   }, [messages.length])
 
   const lastMessage = messages[messages.length - 1]
-  const isLastMessageAssisten = lastMessage?.role === 'USER'
+  const isWaitingForAssistant = lastMessage?.role === 'USER'
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -68,8 +69,8 @@ export const MessageContainer = ({
             )
           })}
         </div>
-        {/* 只有当最后一条消息是用户发送的，才显示加载状态 */}
-        {isLastMessageAssisten && <MessageLoading />}
+        {/* 只有当最后一条消息是用户发送的，且 AI 正在思考中，才显示加载状态 */}
+        {isWaitingForAssistant && <MessageLoading />}
         <div ref={bottomRef} />
       </div>
       <div className="relative p-3 pt-1">
