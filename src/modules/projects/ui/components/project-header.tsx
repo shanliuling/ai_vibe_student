@@ -7,20 +7,17 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  Link,
-  SunMoonIcon,
-} from 'lucide-react'
+import { ChevronDownIcon, ChevronLeftIcon, SunMoonIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
+import Link from 'next/link'
 export const ProjectHeader = ({ projectId }: { projectId: string }) => {
   const trpc = useTRPC()
   const { data: project } = useSuspenseQuery(
@@ -56,29 +53,31 @@ export const ProjectHeader = ({ projectId }: { projectId: string }) => {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuSubTrigger>
-            <SunMoonIcon></SunMoonIcon>
-            <span className="ml-2">主题</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup
-                value={resolvedTheme}
-                onValueChange={(value) => {
-                  setTheme(value)
-                }}>
-                <DropdownMenuRadioItem value="light">
-                  <span>Light</span>
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark">
-                  <span>Dark</span>
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">
-                  <span>System</span>
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <SunMoonIcon></SunMoonIcon>
+              <span className="ml-2">主题</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup
+                  value={resolvedTheme}
+                  onValueChange={(value) => {
+                    setTheme(value)
+                  }}>
+                  <DropdownMenuRadioItem value="light">
+                    <span>Light</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark">
+                    <span>Dark</span>
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system">
+                    <span>System</span>
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

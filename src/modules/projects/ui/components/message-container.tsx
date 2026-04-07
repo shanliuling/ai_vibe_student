@@ -32,12 +32,20 @@ export const MessageContainer = ({
     ),
   )
   useEffect(() => {
-    const lastAssistenMessageWithFragment = messages.findLast(
+    const latestFragmentMessage = messages.findLast(
       (message) => message.role === 'ASSISTANT' && !!message.fragment,
     )
+    if (!latestFragmentMessage) return
 
-    if (lastAssistenMessageWithFragment) {
-      setActiveFragment(lastAssistenMessageWithFragment.fragment)
+    // 如果满足以下任一条件，我们才自动更新：
+    // A. 还没选中任何 Fragment (初次加载)
+    // B. 当前活跃的 Fragment 依然是“旧的最新版”（说明用户没手动点过旧的，一直在跟进度）
+
+    const isFirstTime = !activeFragment
+    const isFollowingLatest =
+      activeFragment?.id === latestFragmentMessage.fragment?.id
+    if (isFirstTime || isFollowingLatest) {
+      setActiveFragment(latestFragmentMessage.fragment)
     }
   }, [messages, setActiveFragment])
 
