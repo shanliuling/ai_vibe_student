@@ -1,9 +1,9 @@
 import { inngest } from '@/inngest/client'
 import prisma from '@/lib/db'
 import { baseProcedure, createTRPCRouter } from '@/trpc/init'
-import { z } from 'zod'
-import { generateSlug } from 'random-word-slugs'
 import { TRPCError } from '@trpc/server'
+import { generateSlug } from 'random-word-slugs'
+import { z } from 'zod'
 // tRPC Router 实例：负责定义与消息业务相关的后端 API 接口
 export const projectsRouter = createTRPCRouter({
   getOne: baseProcedure
@@ -24,7 +24,7 @@ export const projectsRouter = createTRPCRouter({
       return existingProject
     }),
   getMany: baseProcedure.query(async () => {
-    const projects = await prisma.message.findMany({
+    const projects = await prisma.project.findMany({
       orderBy: {
         updatedAt: 'desc',
       },

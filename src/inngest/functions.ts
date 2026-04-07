@@ -31,8 +31,8 @@ export const codeAgentFunction = inngest.createFunction(
       description: '金林专用AI 编程助手',
       system: PROMPT,
       model: openai({
-        model: 'minimax2.5',
-        baseUrl: 'http://100.64.0.59:8902/v1',
+        model: 'glm-5-fp8',
+        baseUrl: 'http://100.64.0.62:8905/v1',
         apiKey: process.env.OPENAI_API_KEY,
         defaultParameters: {
           temperature: 0.1, // 降低随机性，让 AI 更专注
