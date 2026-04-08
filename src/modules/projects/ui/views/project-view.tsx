@@ -8,11 +8,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Fragment } from '@/generated/prisma'
 import { ProjectHeader } from '@/modules/projects/ui/components/project-header'
-import { CodeIcon, CrownIcon, EyeIcon, Link } from 'lucide-react'
+import { CodeIcon, CrownIcon, EyeIcon } from 'lucide-react'
 import { Suspense, useState } from 'react'
 
 import { FileExplorer } from '@/components/file-explorer'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { FragmentWeb } from '../components/fragment-web'
 import { MessageContainer } from '../components/message-container'
 interface Props {
@@ -63,9 +64,10 @@ const ProjectView = ({ projectId }: Props) => {
                 </TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-x-2">
-                <Button asChild size="sm" variant="default">
+                <Button asChild size="sm" variant="tertiary">
                   <Link href="/pricing">
-                    <CrownIcon>Upgrade</CrownIcon>
+                    <CrownIcon></CrownIcon>
+                    <span>Upgrade</span>
                   </Link>
                 </Button>
               </div>
